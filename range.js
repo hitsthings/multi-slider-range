@@ -36,14 +36,63 @@
         };
     }
 
-    function getSliders() {
-        return document.querySelectorAll ?
-            document.querySelectorAll('.range > .slider') :
-            filter(isSlider, document.getElementsByClassName('slider'));
+    function invoke(fn) {
+        return fn.apply(this, arguments);
+    }
+
+    function findInput(name, range) {
+        return range.querySelector ?
+            range.querySelector('input[name="' + name + '"]') :
+            filter(function(el) {
+                return el.tagName === 'INPUT' && el.getAttribute('name') === name;
+            }, range.children)[0];
+    }
+
+    function findSlider(name, range) {
+        return range.querySelector ?
+            range.querySelector('.slider[data-name="' + name + '"]') :
+            filter(function(el) {
+                return hasClass('slider', el) && el.getAttribute('data-name') === name;
+            }, range.children)[0];
+    }
+
+    function createInput(name, value, range) {
+        var input = document.createElement('input');
+        input.setAttribute('type', 'hidden');
+        input.setAttribute('name', name);
+        input.setAttribute('value', value);
+        range.appendChild(input);
+        return input;
+    }
+
+    function createSlider(name, value, range) {
+        var slider = document.createElement('div');
+        slider.className = 'slider';
+        slider.setAttribute('data-name', name);
+        slider.setAttribute('data-value', value);
+        slider.setAttribute('tabindex', 0);
+        range.appendChild(slider);
+        return slider;
+    }
+
+    function getSliders(root) {
+        return root.querySelectorAll ?
+            root.querySelectorAll('.range > .slider') :
+            filter(isSlider, root.getElementsByClassName('slider'));
+    }
+
+    function getSliderInputs(root) {
+        return root.querySelectorAll ?
+            root.querySelectorAll('.range > input') :
+            filter(isSliderInput, root.getElementsByTagName('input'));
     }
 
     function isSlider(el) {
         return hasClass('slider', el) && el.parentNode && hasClass('range', el.parentNode);
+    }
+
+    function isSliderInput(el) {
+        return el.tagName === 'INPUT' && el.parentNode && hasClass('range', el.parentNode);
     }
 
     function hasClass(clazz, el) {
@@ -94,6 +143,7 @@
         var percent = 100*(value - slide.min) / slide.width;
         slider.style.left = percent + '%';
         slider.setAttribute('data-value', value);
+        slide.input.setAttribute('value', value);
         slide.value = value;
 
         if (init) return;
@@ -110,15 +160,23 @@
         var max = range.getAttribute('data-max');
         max = max == null ? 100 : Number(max);
         var step = Number(range.getAttribute('data-step')) || 1;
+        
         var value = slider.getAttribute('data-value');
+        var name = slider.getAttribute('data-name');
+
+        var input = findInput(name, range);
+        
         var slide = {
             min : min,
             max : max,
             width : max - min,
             step : step,
             value : value,
+            name : name,
             rangeXStart : rangeXStart,
-            rangeWidth : rangeWidth
+            rangeWidth : rangeWidth,
+            input : input,
+            range : range
         };
         slide.value = nearestStep(slide, value == null ? (max < min ? min : (max + min) / 2) : Number(value));
         return slide;
@@ -141,7 +199,6 @@
                 e = getEvent(e);
                 var rawValue = mouseXToValue(slide, e.pageX);
                 var value = nearestStep(slide, rawValue);
-                console.log(value, slide.value);
                 if (slide.value !== value) {
                     moveSlider(slider, slide, value);
                 }
@@ -167,12 +224,28 @@
 
     function initializeSlider(slider) {
         var slide = getSlide(slider);
+        if (!slide.input) {
+            slide.input = createInput(slide.name, slide.value, slide.range);
+        }
         moveSlider(slider, slide, slide.value, true);
+    }
+
+    function initializeInput(input) {
+        var name = input.getAttribute('name');
+        var range = input.parentNode;
+        var slider = findSlider(name, range);
+        if (!slider) {
+            initializeSlider(createSlider(name, input.getAttribute('value'), range));
+        }
     }
 
     addListener('mousedown', beginHandleDrag, document.documentElement);
     addListener('keydown', handleSlide, document.documentElement);
 
-    var initializeAll = partial(each, initializeSlider);
-    addListener('DOMContentLoaded', compose(initializeAll, getSliders), window);
+    var initializeSliders = partial(each, initializeSlider);
+    var initializeInputs = partial(each, initializeInput);
+    addListener('DOMContentLoaded', partial(each, invoke, [
+        compose(initializeSliders, partial(getSliders, document)),
+        compose(initializeInputs, partial(getSliderInputs, document))
+    ]), window);
 })();
