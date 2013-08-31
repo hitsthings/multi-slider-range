@@ -1,0 +1,79 @@
+.range {
+    width: 100px;
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+}
+.range:before {
+    content : ' ';
+    vertical-align: middle;
+    display: inline-block;
+    height : 4px;
+    width:100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: #e9e9e9;
+    border: 1px solid #d9d9d9;
+    margin-top: -4px;
+}
+.range > .slider,
+.range > .slider:before,
+.range > .slider:after {
+    border: 1px solid #aaa;
+    background-color: #eee;
+}
+.range > .slider {
+    height: 12px;
+    border-bottom: none;
+    position: absolute;
+    top: 1px;
+    width: 9px;
+}
+.range > .slider:before,
+.range > .slider:after {
+    height: 0;
+    width:0;
+    display:block;
+    content : '';
+    top: 12px;
+}
+.range > .slider:before {
+    background-color:transparent;
+    border-top: 6px solid #aaa;
+    border-left: 6px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: none;
+    position: absolute;
+    left: -1px;
+}
+.range > .slider:after {
+    background-color:transparent;
+    border-top: 4px solid #eee;
+    border-left: 5px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: none;
+    position: absolute;
+    left: 0px;
+}
+.range > .slider:hover {
+    border-color: #9bd;
+    background-color: #e9f3fc;
+}
+.range > .slider:hover:before {
+    border-top-color: #9bd;
+}
+.range > .slider:hover:after {
+    border-top-color: #e9f3fc;
+}
+
+#min {
+    width: 50px;
+    margin: 0;
+    padding: 0;
+}
+#max {
+    margin: 0;
+    padding: 0;
+    width: 50px;
+}

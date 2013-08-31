@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8 />
+    <title>Multi-slider Range input</title>
+    <link rel="stylesheet" href="range.css" />
+</head>
+<body>
+    <div class="range" data-min="2" data-max="8" data-step="1">
+        <div tabindex="0" class="slider" data-name="one" data-value="3"></div>
+        <div tabindex="0" class="slider" data-name="two" data-value="5"></div>
+    </div>
+    <div id="log"></div>
+    
+    <script>
+        var logEl = document.getElementById('log');
+        document.body.addEventListener('change', function(e) {
+            
+            logEl.innerText = [
+                'Changed ',
+                e.target.getAttribute('data-name'),
+                ' to ',
+                e.target.getAttribute('data-value')
+            ].join('');
+            
+        });
+        
+    </script>
+    <script src="range.js"></script>
+</body>
+</html>
