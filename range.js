@@ -36,14 +36,6 @@
         };
     }
 
-    function curry(fn) {
-        return function curried() {
-            return arguments.length >= fn.length ?
-                fn.apply(this, arguments) :
-                partial.apply(null, [curried].concat(Array.prototype.slice.call(arguments)));
-        };
-    }
-
     function getSliders() {
         return document.querySelectorAll ?
             document.querySelectorAll('.range > .slider') :
